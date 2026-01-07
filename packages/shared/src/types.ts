@@ -8,11 +8,14 @@ export interface Business {
   updatedAt: Date;
 }
 
+export type Role = 'ADMIN' | 'SUPERVISOR' | 'USER';
+
 export interface User {
   id: string;
   businessId: string;
   email: string;
   name: string;
+  role: Role;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -48,6 +51,13 @@ export interface LoginRequest {
 export interface AuthResponse {
   user: Omit<User, 'createdAt' | 'updatedAt'>;
   business: Omit<Business, 'createdAt' | 'updatedAt'>;
+}
+
+export interface CreateUserRequest {
+  name: string;
+  email: string;
+  password: string;
+  role: Role;
 }
 
 // Client types

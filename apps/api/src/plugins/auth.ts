@@ -11,6 +11,7 @@ declare module 'fastify' {
       businessId: string;
       email: string;
       name: string;
+      role: 'ADMIN' | 'SUPERVISOR' | 'USER';
     };
     businessId?: string;
   }
@@ -43,6 +44,7 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
           businessId: true,
           email: true,
           name: true,
+          role: true,
         },
       });
 

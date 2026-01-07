@@ -53,6 +53,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
             email: body.email,
             name: body.name,
             passwordHash,
+            role: 'ADMIN',
           },
         });
 
@@ -63,6 +64,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
       const token = signToken({
         userId: result.user.id,
         businessId: result.business.id,
+        role: result.user.role,
       });
 
       // Set cookie
@@ -80,6 +82,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
           businessId: result.user.businessId,
           email: result.user.email,
           name: result.user.name,
+          role: result.user.role,
         },
         business: {
           id: result.business.id,
@@ -138,6 +141,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
       const token = signToken({
         userId: user.id,
         businessId: user.businessId,
+        role: user.role,
       });
 
       // Set cookie
@@ -155,6 +159,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
           businessId: user.businessId,
           email: user.email,
           name: user.name,
+          role: user.role,
         },
         business: {
           id: user.business.id,
@@ -207,6 +212,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
         businessId: user.businessId,
         email: user.email,
         name: user.name,
+          role: user.role,
       },
       business: {
         id: user.business.id,

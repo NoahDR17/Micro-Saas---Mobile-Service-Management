@@ -1,0 +1,10 @@
+services:
+  msmworker:
+    image: msmworker
+    build:
+      context: apps/worker
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:3000
