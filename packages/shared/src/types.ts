@@ -94,3 +94,104 @@ export interface ApiError {
     details?: unknown;
   };
 }
+
+// Service types
+export interface Service {
+  id: string;
+  businessId: string;
+  name: string;
+  description: string | null;
+  priceCents: number;
+  durationMinutes: number;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateServiceRequest {
+  name: string;
+  description?: string;
+  priceCents?: number;
+  durationMinutes?: number;
+  active?: boolean;
+}
+
+export interface UpdateServiceRequest {
+  name?: string;
+  description?: string | null;
+  priceCents?: number;
+  durationMinutes?: number;
+  active?: boolean;
+}
+
+// Add-on types
+export interface AddOn {
+  id: string;
+  businessId: string;
+  name: string;
+  description: string | null;
+  priceCents: number;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateAddOnRequest {
+  name: string;
+  description?: string;
+  priceCents?: number;
+  active?: boolean;
+}
+
+export interface UpdateAddOnRequest {
+  name?: string;
+  description?: string | null;
+  priceCents?: number;
+  active?: boolean;
+}
+
+// Booking types
+export type BookingStatus = 'BOOKED' | 'COMPLETED' | 'CANCELLED';
+
+export interface Booking {
+  id: string;
+  businessId: string;
+  clientId: string;
+  serviceId: string | null;
+  scheduledAt: Date;
+  status: BookingStatus;
+  notes: string | null;
+  totalCents: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+  // Expanded when included
+  client?: Client;
+  service?: Service | null;
+  addOns?: AddOn[];
+}
+
+export interface CreateBookingRequest {
+  clientId: string;
+  serviceId?: string;
+  addOnIds?: string[];
+  scheduledAt: string; // ISO string
+  notes?: string;
+}
+
+export interface UpdateBookingRequest {
+  clientId?: string;
+  serviceId?: string | null;
+  addOnIds?: string[];
+  scheduledAt?: string; // ISO string
+  notes?: string | null;
+}
+
+export interface BookingsQuery {
+  status?: BookingStatus;
+  from?: string; // ISO
+  to?: string;   // ISO
+}
+
+export interface SetBookingStatusRequest {
+  status: BookingStatus;
+}

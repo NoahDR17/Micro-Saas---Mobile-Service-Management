@@ -7,6 +7,17 @@ import type {
   ClientsQuery,
   Client,
   ApiError,
+  Service,
+  CreateServiceRequest,
+  UpdateServiceRequest,
+  AddOn,
+  CreateAddOnRequest,
+  UpdateAddOnRequest,
+  Booking,
+  CreateBookingRequest,
+  UpdateBookingRequest,
+  BookingsQuery,
+  SetBookingStatusRequest,
 } from '@msm/shared';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -93,6 +104,87 @@ class ApiClient {
   async unarchiveClient(id: string): Promise<Client> {
     return this.request<Client>(`/clients/${id}/unarchive`, {
       method: 'POST',
+    });
+  }
+
+  // Service endpoints
+  async getServices(params: { search?: string; active?: boolean } = {}): Promise<Service[]> {
+    const usp = new URLSearchParams();
+    if (params.search) usp.set('search', params.search);
+    if (params.active !== undefined) usp.set('active', String(params.active));
+    const qs = usp.toString();
+    return this.request<Service[]>(`/services${qs ? `?${qs}` : ''}`);
+  }
+
+  async createService(data: CreateServiceRequest): Promise<Service> {
+    return this.request<Service>('/services', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateService(id: string, data: UpdateServiceRequest): Promise<Service> {
+    return this.request<Service>(`/services/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // Add-on endpoints
+  async getAddOns(params: { search?: string; active?: boolean } = {}): Promise<AddOn[]> {
+    const usp = new URLSearchParams();
+    if (params.search) usp.set('search', params.search);
+    if (params.active !== undefined) usp.set('active', String(params.active));
+    const qs = usp.toString();
+    return this.request<AddOn[]>(`/addons${qs ? `?${qs}` : ''}`);
+  }
+
+  async createAddOn(data: CreateAddOnRequest): Promise<AddOn> {
+    return this.request<AddOn>('/addons', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateAddOn(id: string, data: UpdateAddOnRequest): Promise<AddOn> {
+    return this.request<AddOn>(`/addons/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // Booking endpoints
+  async getBookings(query: BookingsQuery = {}): Promise<Booking[]> {
+    const usp = new URLSearchParams();
+    if (query.status) usp.set('status', query.status);
+    if (query.from) usp.set('from', query.from);
+    if (query.to) usp.set('to', query.to);
+    const qs = usp.toString();
+    return this.request<Booking[]>(`/bookings${qs ? `?${qs}` : ''}`);
+  }
+
+  async getBooking(id: string): Promise<Booking> {
+    return this.request<Booking>(`/bookings/${id}`);
+  }
+
+  async createBooking(data: CreateBookingRequest): Promise<Booking> {
+    return this.request<Booking>('/bookings', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    }
+
+  async updateBooking(id: string, data: UpdateBookingRequest): Promise<Booking> {
+    return this.request<Booking>(`/bookings/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async setBookingStatus(id: string, status: SetBookingStatusRequest): Promise<Booking> {
+    return this.request<Booking>(`/bookings/${id}/status`, {
+      method: 'POST',
+      body: JSON.stringify(status),
     });
   }
 }

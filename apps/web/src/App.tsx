@@ -8,6 +8,10 @@ import { Clients } from './pages/Clients';
 import { ClientNew } from './pages/ClientNew';
 import { ClientEdit } from './pages/ClientEdit';
 import { Placeholder } from './pages/Placeholder';
+import { Bookings } from './pages/Bookings';
+import { BookingNew } from './pages/BookingNew';
+import { BookingEdit } from './pages/BookingEdit';
+import { BookingDetail } from './pages/BookingDetail';
 
 function App() {
   return (
@@ -55,7 +59,31 @@ function App() {
             path="/app/bookings"
             element={
               <ProtectedRoute>
-                <Placeholder />
+                <Bookings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/bookings/new"
+            element={
+              <ProtectedRoute>
+                <BookingNew />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/bookings/:id"
+            element={
+              <ProtectedRoute>
+                <BookingDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/bookings/:id/edit"
+            element={
+              <ProtectedRoute>
+                <BookingEdit />
               </ProtectedRoute>
             }
           />

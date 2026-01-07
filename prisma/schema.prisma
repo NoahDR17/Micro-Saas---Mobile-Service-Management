@@ -26,6 +26,9 @@ model Business {
 
   users   User[]
   clients Client[]
+  services Service[]
+  addOns   AddOn[]
+  bookings Booking[]
 
   @@map("businesses")
 }
@@ -62,6 +65,7 @@ model Client {
   updatedAt       DateTime  @updatedAt
 
   business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  bookings Booking[]
 
   @@index([businessId])
   @@index([fullName])
@@ -69,4 +73,87 @@ model Client {
   @@index([phone])
   @@index([archivedAt])
   @@map("clients")
+}
+
+// Services offered by the business
+model Service {
+  id              String   @id @default(cuid())
+  businessId      String
+  name            String
+  description     String?
+  priceCents      Int       @default(0)
+  durationMinutes Int       @default(60)
+  active          Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@index([businessId])
+  @@index([active])
+  @@map("services")
+}
+
+// Optional add-ons that can be attached to a booking
+model AddOn {
+  id              String   @id @default(cuid())
+  businessId      String
+  name            String
+  description     String?
+  priceCents      Int       @default(0)
+  active          Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  bookings BookingAddOn[]
+
+  @@index([businessId])
+  @@index([active])
+  @@map("add_ons")
+}
+
+enum BookingStatus {
+  BOOKED
+  COMPLETED
+  CANCELLED
+}
+
+// Bookings/Jobs for clients
+model Booking {
+  id          String         @id @default(cuid())
+  businessId  String
+  clientId    String
+  serviceId   String?
+  scheduledAt DateTime
+  status      BookingStatus  @default(BOOKED)
+  notes       String?
+  totalCents  Int?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  client   Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  service  Service? @relation(fields: [serviceId], references: [id])
+  addOns   BookingAddOn[]
+
+  @@index([businessId])
+  @@index([clientId])
+  @@index([serviceId])
+  @@index([scheduledAt])
+  @@index([status])
+  @@map("bookings")
+}
+
+// Join table for many-to-many between bookings and add-ons
+model BookingAddOn {
+  bookingId String
+  addOnId   String
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  addOn   AddOn   @relation(fields: [addOnId], references: [id], onDelete: Cascade)
+
+  @@id([bookingId, addOnId])
+  @@map("booking_add_ons")
 }

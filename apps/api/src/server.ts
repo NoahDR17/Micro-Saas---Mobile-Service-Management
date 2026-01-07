@@ -5,6 +5,9 @@ import prismaPlugin from './plugins/prisma.js';
 import authRoutes from './routes/auth.js';
 import clientsRoutes from './routes/clients.js';
 import usersRoutes from './routes/users.js';
+import servicesRoutes from './routes/services.js';
+import addOnsRoutes from './routes/addons.js';
+import bookingsRoutes from './routes/bookings.js';
 
 export async function createServer() {
   const fastify = Fastify({
@@ -33,6 +36,9 @@ export async function createServer() {
   await fastify.register(authRoutes, { prefix: '/auth' });
   await fastify.register(clientsRoutes, { prefix: '/clients' });
   await fastify.register(usersRoutes, { prefix: '/users' });
+  await fastify.register(servicesRoutes, { prefix: '/services' });
+  await fastify.register(addOnsRoutes, { prefix: '/addons' });
+  await fastify.register(bookingsRoutes, { prefix: '/bookings' });
 
   // Error handler
   fastify.setErrorHandler((error, request, reply) => {
