@@ -18,6 +18,13 @@ import type {
   UpdateBookingRequest,
   BookingsQuery,
   SetBookingStatusRequest,
+  Business,
+  UpdateBusinessRequest,
+  MessageTemplate,
+  CreateMessageTemplateRequest,
+  UpdateMessageTemplateRequest,
+  MessageLog,
+  MessageLogsQuery,
 } from '@msm/shared';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -37,11 +44,17 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      const error: ApiError = await response.json();
-      throw new Error(error.error.message);
+      try {
+        const error: ApiError = await response.json();
+        throw new Error(error.error.message);
+      } catch (e) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
     }
 
-    return response.json();
+    // Handle empty responses (like 204 No Content)
+    const text = await response.text();
+    return text ? JSON.parse(text) : ({} as T);
   }
 
   // Auth endpoints
@@ -60,7 +73,12 @@ class ApiClient {
   }
 
   async logout(): Promise<void> {
-    await this.request('/auth/logout', { method: 'POST' });
+    try {
+      await this.request('/auth/logout', { method: 'POST' });
+    } catch (error) {
+      // Ignore errors during logout (e.g., already logged out)
+      console.warn('Logout error:', error);
+    }
   }
 
   async me(): Promise<AuthResponse> {
@@ -186,6 +204,85 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify(status),
     });
+  }
+
+  // Business endpoints
+  async getBusiness(): Promise<Business> {
+    return this.request<Business>('/businesses/me');
+  }
+
+  async updateBusiness(data: UpdateBusinessRequest): Promise<Business> {
+    return this.request<Business>('/businesses/me', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // Dashboard endpoints
+  async getDashboardStats(): Promise<{
+    todayBookings: number;
+    upcomingBookings: number;
+    dueToRebookCount: number;
+    automationActivityToday: number;
+    weeklyIncomeEstimate: number;
+  }> {
+    return this.request('/dashboard');
+  }
+
+  async getDashboardBookings(): Promise<Booking[]> {
+    return this.request<Booking[]>('/dashboard/bookings');
+  }
+
+  async getDueToRebookClients(): Promise<Client[]> {
+    return this.request<Client[]>('/dashboard/due-to-rebook');
+  }
+
+  // Template endpoints
+  async getTemplates(): Promise<MessageTemplate[]> {
+    return this.request<MessageTemplate[]>('/templates');
+  }
+
+  async getTemplate(id: string): Promise<MessageTemplate> {
+    return this.request<MessageTemplate>(`/templates/${id}`);
+  }
+
+  async createTemplate(data: CreateMessageTemplateRequest): Promise<MessageTemplate> {
+    return this.request<MessageTemplate>('/templates', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTemplate(id: string, data: UpdateMessageTemplateRequest): Promise<MessageTemplate> {
+    return this.request<MessageTemplate>(`/templates/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTemplate(id: string): Promise<void> {
+    await this.request(`/templates/${id}`, { method: 'DELETE' });
+  }
+
+  async previewTemplate(id: string, variables: Record<string, string>): Promise<{ subject: string | null; body: string }> {
+    return this.request(`/templates/${id}/preview`, {
+      method: 'POST',
+      body: JSON.stringify({ variables }),
+    });
+  }
+
+  // Message log endpoints
+  async getMessageLogs(query: MessageLogsQuery = {}): Promise<MessageLog[]> {
+    const usp = new URLSearchParams();
+    if (query.status) usp.set('status', query.status);
+    if (query.from) usp.set('from', query.from);
+    if (query.to) usp.set('to', query.to);
+    const qs = usp.toString();
+    return this.request<MessageLog[]>(`/message-logs${qs ? `?${qs}` : ''}`);
+  }
+
+  async getMessageLog(id: string): Promise<MessageLog> {
+    return this.request<MessageLog>(`/message-logs/${id}`);
   }
 }
 

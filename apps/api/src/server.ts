@@ -8,6 +8,10 @@ import usersRoutes from './routes/users.js';
 import servicesRoutes from './routes/services.js';
 import addOnsRoutes from './routes/addons.js';
 import bookingsRoutes from './routes/bookings.js';
+import businessRoutes from './routes/business.js';
+import dashboardRoutes from './routes/dashboard.js';
+import templatesRoutes from './routes/templates.js';
+import messageLogsRoutes from './routes/messageLogs.js';
 
 export async function createServer() {
   const fastify = Fastify({
@@ -39,6 +43,10 @@ export async function createServer() {
   await fastify.register(servicesRoutes, { prefix: '/services' });
   await fastify.register(addOnsRoutes, { prefix: '/addons' });
   await fastify.register(bookingsRoutes, { prefix: '/bookings' });
+  await fastify.register(businessRoutes, { prefix: '/businesses' });
+  await fastify.register(dashboardRoutes, { prefix: '' });
+  await fastify.register(templatesRoutes, { prefix: '/templates' });
+  await fastify.register(messageLogsRoutes, { prefix: '/message-logs' });
 
   // Error handler
   fastify.setErrorHandler((error, request, reply) => {

@@ -11,24 +11,40 @@ enum Role {
   USER
 }
 
+enum MessageChannel {
+  EMAIL
+  SMS
+}
+
+enum MessageTemplateType {
+  CONFIRMATION
+  REMINDER
+  REVIEW
+  REBOOK
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Business {
-  id              String   @id @default(cuid())
-  name            String
-  timezone        String   @default("Europe/London")
-  identifierLabel String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                              String   @id @default(cuid())
+  name                            String
+  timezone                        String   @default("Europe/London")
+  identifierLabel                 String?
+  defaultRebookIntervalDays       Int      @default(30)
+  defaultChannel                  MessageChannel @default(EMAIL)
+  setupCompleted                  Boolean  @default(false)
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime @updatedAt
 
-  users   User[]
-  clients Client[]
-  services Service[]
-  addOns   AddOn[]
-  bookings Booking[]
+  users             User[]
+  clients           Client[]
+  services          Service[]
+  addOns            AddOn[]
+  bookings          Booking[]
+  messageTemplates  MessageTemplate[]
 
   @@map("businesses")
 }
@@ -156,4 +172,55 @@ model BookingAddOn {
 
   @@id([bookingId, addOnId])
   @@map("booking_add_ons")
+}
+
+// Message templates for automations (confirmation, reminder, review, rebook)
+model MessageTemplate {
+  id          String                @id @default(cuid())
+  businessId  String
+  type        MessageTemplateType
+  subject     String?               // For email
+  body        String                // Can contain variables like {client_name}, {booking_date}
+  channel     MessageChannel
+  enabled     Boolean               @default(true)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, type, channel])
+  @@index([businessId])
+  @@map("message_templates")
+}
+
+enum MessageStatus {
+  QUEUED
+  SENT
+  FAILED
+  SKIPPED
+}
+
+// Message log to track all sent/queued messages
+model MessageLog {
+  id             String          @id @default(cuid())
+  businessId     String
+  clientId       String?
+  bookingId      String?
+  templateType   MessageTemplateType?
+  channel        MessageChannel
+  recipient      String          // email address or phone number
+  subject        String?
+  body           String
+  status         MessageStatus   @default(QUEUED)
+  errorMessage   String?
+  sentAt         DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([businessId])
+  @@index([clientId])
+  @@index([bookingId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("message_logs")
 }

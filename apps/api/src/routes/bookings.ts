@@ -28,6 +28,35 @@ const listQuerySchema = z.object({
 const bookingsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.addHook('preHandler', fastify.authenticate);
 
+  // Helper function to calculate total cost
+  const calculateTotalCents = async (
+    serviceId: string | null | undefined,
+    addOnIds: string[],
+    businessId: string
+  ): Promise<number> => {
+    let total = 0;
+
+    // Add service price
+    if (serviceId) {
+      const service = await fastify.prisma.service.findFirst({
+        where: { id: serviceId, businessId },
+      });
+      if (service) {
+        total += service.priceCents;
+      }
+    }
+
+    // Add add-on prices
+    if (addOnIds.length > 0) {
+      const addOns = await fastify.prisma.addOn.findMany({
+        where: { id: { in: addOnIds }, businessId },
+      });
+      total += addOns.reduce((sum, addOn) => sum + addOn.priceCents, 0);
+    }
+
+    return total;
+  };
+
   // List bookings
   fastify.get('/', async (request, reply) => {
     const parse = listQuerySchema.safeParse(request.query);
@@ -88,6 +117,9 @@ const bookingsRoutes: FastifyPluginAsync = async (fastify) => {
       }
     }
 
+    // Calculate total cost
+    const totalCents = await calculateTotalCents(body.serviceId, addOnIds, businessId);
+
     const created = await fastify.prisma.$transaction(async (tx) => {
       const booking = await tx.booking.create({
         data: {
@@ -96,6 +128,7 @@ const bookingsRoutes: FastifyPluginAsync = async (fastify) => {
           serviceId: body.serviceId ?? null,
           scheduledAt: new Date(body.scheduledAt),
           notes: body.notes ?? null,
+          totalCents,
         },
       });
 
@@ -159,6 +192,25 @@ const bookingsRoutes: FastifyPluginAsync = async (fastify) => {
       }
     }
 
+    // Recalculate total if service or add-ons changed
+    let totalCents: number | undefined;
+    if (body.serviceId !== undefined || body.addOnIds !== undefined) {
+      const finalServiceId = body.serviceId !== undefined ? body.serviceId : existing.serviceId;
+      let finalAddOnIds: string[] = [];
+      
+      if (body.addOnIds !== undefined) {
+        finalAddOnIds = body.addOnIds;
+      } else {
+        // Keep existing add-ons
+        const existingAddOns = await fastify.prisma.bookingAddOn.findMany({
+          where: { bookingId: id },
+        });
+        finalAddOnIds = existingAddOns.map((ba) => ba.addOnId);
+      }
+      
+      totalCents = await calculateTotalCents(finalServiceId, finalAddOnIds, businessId);
+    }
+
     const updated = await fastify.prisma.$transaction(async (tx) => {
       const b = await tx.booking.update({
         where: { id },
@@ -167,6 +219,7 @@ const bookingsRoutes: FastifyPluginAsync = async (fastify) => {
           ...(body.serviceId !== undefined && { serviceId: body.serviceId }),
           ...(body.scheduledAt !== undefined && { scheduledAt: new Date(body.scheduledAt) }),
           ...(body.notes !== undefined && { notes: body.notes }),
+          ...(totalCents !== undefined && { totalCents }),
         },
       });
 

@@ -4,11 +4,18 @@ export interface Business {
   name: string;
   timezone: string;
   identifierLabel: string | null;
+  defaultRebookIntervalDays: number;
+  defaultChannel: MessageChannel;
+  setupCompleted: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export type Role = 'ADMIN' | 'SUPERVISOR' | 'USER';
+
+export type MessageChannel = 'EMAIL' | 'SMS';
+
+export type MessageTemplateType = 'CONFIRMATION' | 'REMINDER' | 'REVIEW' | 'REBOOK';
 
 export interface User {
   id: string;
@@ -194,4 +201,66 @@ export interface BookingsQuery {
 
 export interface SetBookingStatusRequest {
   status: BookingStatus;
+}
+
+// Business configuration types
+export interface UpdateBusinessRequest {
+  name?: string;
+  timezone?: string;
+  identifierLabel?: string | null;
+  defaultRebookIntervalDays?: number;
+  defaultChannel?: MessageChannel;
+  setupCompleted?: boolean;
+}
+
+// Message template types
+export interface MessageTemplate {
+  id: string;
+  businessId: string;
+  type: MessageTemplateType;
+  subject: string | null;
+  body: string;
+  channel: MessageChannel;
+  enabled: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateMessageTemplateRequest {
+  type: MessageTemplateType;
+  subject?: string;
+  body: string;
+  channel: MessageChannel;
+  enabled?: boolean;
+}
+
+export interface UpdateMessageTemplateRequest {
+  subject?: string | null;
+  body?: string;
+  channel?: MessageChannel;
+  enabled?: boolean;
+}
+export type MessageStatus = 'QUEUED' | 'SENT' | 'FAILED' | 'SKIPPED';
+
+export interface MessageLog {
+  id: string;
+  businessId: string;
+  clientId: string | null;
+  bookingId: string | null;
+  templateType: MessageTemplateType | null;
+  channel: MessageChannel;
+  recipient: string;
+  subject: string | null;
+  body: string;
+  status: MessageStatus;
+  errorMessage: string | null;
+  sentAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface MessageLogsQuery {
+  status?: MessageStatus;
+  from?: string; // ISO date
+  to?: string; // ISO date
 }

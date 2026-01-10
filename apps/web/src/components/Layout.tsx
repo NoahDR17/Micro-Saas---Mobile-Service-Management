@@ -20,7 +20,8 @@ export function Layout({ children }: LayoutProps) {
     { path: '/app/dashboard', label: 'Dashboard' },
     { path: '/app/bookings', label: 'Bookings' },
     { path: '/app/clients', label: 'Clients' },
-    { path: '/app/more', label: 'More' },
+    { path: '/app/services', label: 'Services' },
+    { path: '/app/settings', label: 'Settings' },
   ];
 
   return (

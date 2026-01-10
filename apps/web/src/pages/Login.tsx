@@ -17,7 +17,7 @@ export function Login() {
 
     try {
       await login(email, password);
-      navigate('/app/clients');
+      navigate('/app/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to login');
     } finally {

@@ -10,6 +10,7 @@ interface AuthContextType {
   register: (businessName: string, name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refetch: () => Promise<void>;
+  refreshAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -58,8 +59,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await fetchUser();
   };
 
+  const refreshAuth = async () => {
+    await fetchUser();
+  };
+
   return (
-    <AuthContext.Provider value={{ user, business, loading, login, register, logout, refetch }}>
+    <AuthContext.Provider value={{ user, business, loading, login, register, logout, refetch, refreshAuth }}>
       {children}
     </AuthContext.Provider>
   );

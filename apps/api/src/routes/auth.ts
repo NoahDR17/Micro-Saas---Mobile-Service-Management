@@ -89,6 +89,9 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
           name: result.business.name,
           timezone: result.business.timezone,
           identifierLabel: result.business.identifierLabel,
+          defaultRebookIntervalDays: result.business.defaultRebookIntervalDays,
+          defaultChannel: result.business.defaultChannel,
+          setupCompleted: result.business.setupCompleted,
         },
       };
     } catch (error) {
@@ -166,6 +169,9 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
           name: user.business.name,
           timezone: user.business.timezone,
           identifierLabel: user.business.identifierLabel,
+          defaultRebookIntervalDays: user.business.defaultRebookIntervalDays,
+          defaultChannel: user.business.defaultChannel,
+          setupCompleted: user.business.setupCompleted,
         },
       };
     } catch (error) {
@@ -184,7 +190,12 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 
   // Logout
   fastify.post('/logout', async (request, reply) => {
-    reply.clearCookie(config.cookieName, { path: '/' });
+    reply.clearCookie(config.cookieName, {
+      httpOnly: true,
+      secure: config.nodeEnv === 'production',
+      sameSite: 'lax',
+      path: '/',
+    });
     return { success: true };
   });
 
@@ -219,6 +230,9 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
         name: user.business.name,
         timezone: user.business.timezone,
         identifierLabel: user.business.identifierLabel,
+        defaultRebookIntervalDays: user.business.defaultRebookIntervalDays,
+        defaultChannel: user.business.defaultChannel,
+        setupCompleted: user.business.setupCompleted,
       },
     };
   });

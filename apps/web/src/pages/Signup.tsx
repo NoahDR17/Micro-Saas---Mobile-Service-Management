@@ -25,7 +25,7 @@ export function Signup() {
 
     try {
       await register(businessName, name, email, password);
-      navigate('/app/clients');
+      navigate('/app/setup');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to sign up');
     } finally {
