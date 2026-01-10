@@ -116,6 +116,31 @@ const servicesRoutes: FastifyPluginAsync = async (fastify) => {
     });
     return updated;
   });
+
+  // Delete service
+  fastify.delete('/:id', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const businessId = request.businessId!;
+
+    const existing = await fastify.prisma.service.findFirst({ where: { id, businessId } });
+    if (!existing) {
+      return reply.status(404).send({ error: { message: 'Service not found', code: 'SERVICE_NOT_FOUND' } });
+    }
+
+    // Check if service is used in any bookings
+    const bookingCount = await fastify.prisma.booking.count({ where: { serviceId: id } });
+    if (bookingCount > 0) {
+      return reply.status(400).send({
+        error: {
+          message: 'Cannot delete service with existing bookings. Set to inactive instead.',
+          code: 'SERVICE_HAS_BOOKINGS',
+        },
+      });
+    }
+
+    await fastify.prisma.service.delete({ where: { id } });
+    return reply.status(204).send();
+  });
 };
 
 export default servicesRoutes;

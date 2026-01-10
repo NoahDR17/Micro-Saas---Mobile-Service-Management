@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Layout } from '../components/Layout';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { apiClient } from '../api/client';
 import type { Booking } from '@msm/shared';
 import { CompleteJobModal } from '../components/CompleteJobModal';
@@ -9,8 +10,10 @@ export function BookingDetail() {
   const { id } = useParams<{ id: string }>();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
   const [showComplete, setShowComplete] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const navigate = useNavigate();
 
   const load = async () => {
@@ -50,6 +53,20 @@ export function BookingDetail() {
     }
   };
 
+  const deleteBooking = async () => {
+    if (!id) return;
+    setDeleting(true);
+    setError('');
+    setShowDeleteConfirm(false);
+    try {
+      await apiClient.deleteBooking(id);
+      navigate('/app/bookings');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to delete booking');
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -79,6 +96,7 @@ export function BookingDetail() {
                 <button onClick={cancelBooking} style={{ padding: '0.5rem 0.75rem', background: '#ef4444', color: 'white', border: 'none', borderRadius: '0.25rem', fontWeight: 500 }}>Cancel</button>
               </>
             )}
+            <button onClick={() => setShowDeleteConfirm(true)} disabled={deleting} style={{ padding: '0.5rem 0.75rem', background: deleting ? '#9ca3af' : '#7c3aed', color: 'white', border: 'none', borderRadius: '0.25rem', fontWeight: 500, cursor: deleting ? 'not-allowed' : 'pointer' }}>{deleting ? 'Deleting...' : 'Delete'}</button>
           </div>
         </div>
 
@@ -101,6 +119,17 @@ export function BookingDetail() {
       </div>
 
       <CompleteJobModal open={showComplete} onCancel={() => setShowComplete(false)} onConfirm={completeBooking} />
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Booking"
+        message="Are you sure you want to delete this booking? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={deleteBooking}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </Layout>
   );
 }

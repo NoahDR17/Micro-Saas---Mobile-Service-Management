@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Layout } from '../components/Layout';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { apiClient } from '../api/client';
 import type { Client } from '@msm/shared';
 
@@ -17,6 +18,8 @@ export function ClientEdit() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [fetching, setFetching] = useState(true);
   const navigate = useNavigate();
 
@@ -73,6 +76,23 @@ export function ClientEdit() {
       setError(err instanceof Error ? err.message : 'Failed to update client');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+
+    setDeleting(true);
+    setError('');
+    setShowDeleteConfirm(false);
+
+    try {
+      await apiClient.deleteClient(id);
+      navigate('/app/clients');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete client');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -297,9 +317,40 @@ export function ClientEdit() {
                 Cancel
               </Link>
             </div>
+
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={deleting}
+              style={{
+                width: '100%',
+                marginTop: '1rem',
+                padding: '0.75rem',
+                backgroundColor: deleting ? '#9ca3af' : '#dc2626',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.25rem',
+                fontSize: '1rem',
+                fontWeight: '500',
+                cursor: deleting ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {deleting ? 'Deleting...' : 'Delete Client'}
+            </button>
           </form>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Client"
+        message="Are you sure you want to delete this client? This action cannot be undone. You can only delete clients with no booking history."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </Layout>
   );
 }

@@ -1,8 +1,9 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Layout } from '../components/Layout';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { apiClient } from '../api/client';
-import type { MessageTemplate, MessageTemplateType, MessageChannel } from '@msm/shared';
+import type { MessageTemplateType, MessageChannel } from '@msm/shared';
 
 export function TemplateEditor() {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +20,7 @@ export function TemplateEditor() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -113,10 +115,11 @@ export function TemplateEditor() {
   };
 
   const handleDelete = async () => {
-    if (!id || !confirm('Are you sure you want to delete this template?')) return;
+    if (!id) return;
     
     setDeleting(true);
     setError('');
+    setShowDeleteConfirm(false);
     try {
       await apiClient.deleteTemplate(id);
       navigate('/app/templates');
@@ -359,7 +362,7 @@ export function TemplateEditor() {
               {!isNew && (
                 <button
                   type="button"
-                  onClick={handleDelete}
+                  onClick={() => setShowDeleteConfirm(true)}
                   disabled={deleting}
                   style={{
                     padding: '0.75rem 1.5rem',
@@ -378,6 +381,17 @@ export function TemplateEditor() {
           </form>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Template"
+        message="Are you sure you want to delete this template? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </Layout>
   );
 }

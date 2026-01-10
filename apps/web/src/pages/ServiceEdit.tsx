@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Layout } from '../components/Layout';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { apiClient } from '../api/client';
 import type { Service } from '@msm/shared';
 
@@ -13,6 +14,8 @@ export function ServiceEdit() {
   const [durationMinutes, setDurationMinutes] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -58,6 +61,22 @@ export function ServiceEdit() {
       setError(err instanceof Error ? err.message : 'Failed to update service');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    setDeleting(true);
+    setError('');
+    setShowDeleteConfirm(false);
+
+    try {
+      await apiClient.deleteService(id);
+      navigate('/app/services');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete service');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -206,9 +225,39 @@ export function ServiceEdit() {
                 {saving ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
+
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={deleting}
+              style={{
+                width: '100%',
+                marginTop: '1rem',
+                padding: '0.75rem',
+                background: deleting ? '#9ca3af' : '#dc2626',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                fontWeight: 500,
+                cursor: deleting ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {deleting ? 'Deleting...' : 'Delete Service'}
+            </button>
           </form>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Service"
+        message="Are you sure you want to delete this service? This action cannot be undone. You can only delete services with no booking history."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </Layout>
   );
 }

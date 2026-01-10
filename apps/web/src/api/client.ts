@@ -125,6 +125,10 @@ class ApiClient {
     });
   }
 
+  async deleteClient(id: string): Promise<void> {
+    await this.request(`/clients/${id}`, { method: 'DELETE' });
+  }
+
   // Service endpoints
   async getServices(params: { search?: string; active?: boolean } = {}): Promise<Service[]> {
     const usp = new URLSearchParams();
@@ -146,6 +150,10 @@ class ApiClient {
       method: 'PATCH',
       body: JSON.stringify(data),
     });
+  }
+
+  async deleteService(id: string): Promise<void> {
+    await this.request(`/services/${id}`, { method: 'DELETE' });
   }
 
   // Add-on endpoints
@@ -205,7 +213,9 @@ class ApiClient {
       body: JSON.stringify(status),
     });
   }
-
+  async deleteBooking(id: string): Promise<void> {
+    await this.request(`/bookings/${id}`, { method: 'DELETE' });
+  }
   // Business endpoints
   async getBusiness(): Promise<Business> {
     return this.request<Business>('/businesses/me');

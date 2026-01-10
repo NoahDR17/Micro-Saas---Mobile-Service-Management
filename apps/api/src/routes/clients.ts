@@ -231,6 +231,49 @@ const clientsRoutes: FastifyPluginAsync = async (fastify) => {
 
     return client;
   });
+
+  // Delete client
+  fastify.delete<{ Params: { id: string } }>('/:id', async (request, reply) => {
+    const { id } = request.params;
+    const businessId = request.businessId!;
+
+    // Check if client exists and belongs to business
+    const existingClient = await fastify.prisma.client.findFirst({
+      where: {
+        id,
+        businessId,
+      },
+    });
+
+    if (!existingClient) {
+      return reply.status(404).send({
+        error: {
+          message: 'Client not found',
+          code: 'CLIENT_NOT_FOUND',
+        },
+      });
+    }
+
+    // Check if client has any bookings
+    const bookingCount = await fastify.prisma.booking.count({
+      where: { clientId: id },
+    });
+
+    if (bookingCount > 0) {
+      return reply.status(400).send({
+        error: {
+          message: 'Cannot delete client with existing bookings. Archive instead.',
+          code: 'CLIENT_HAS_BOOKINGS',
+        },
+      });
+    }
+
+    await fastify.prisma.client.delete({
+      where: { id },
+    });
+
+    return reply.status(204).send();
+  });
 };
 
 export default clientsRoutes;

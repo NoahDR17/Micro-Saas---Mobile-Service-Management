@@ -260,6 +260,25 @@ const bookingsRoutes: FastifyPluginAsync = async (fastify) => {
     const updated = await fastify.prisma.booking.update({ where: { id }, data: { status } });
     return updated;
   });
+
+  // Delete booking
+  fastify.delete('/:id', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const businessId = request.businessId!;
+
+    const existing = await fastify.prisma.booking.findFirst({ where: { id, businessId } });
+    if (!existing) {
+      return reply.status(404).send({ error: { message: 'Booking not found', code: 'BOOKING_NOT_FOUND' } });
+    }
+
+    // Delete booking add-ons first (due to foreign key constraint)
+    await fastify.prisma.bookingAddOn.deleteMany({ where: { bookingId: id } });
+
+    // Delete booking
+    await fastify.prisma.booking.delete({ where: { id } });
+
+    return reply.status(204).send();
+  });
 };
 
 export default bookingsRoutes;
