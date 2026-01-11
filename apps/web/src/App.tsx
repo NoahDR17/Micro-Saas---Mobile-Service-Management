@@ -22,6 +22,9 @@ import { Settings } from './pages/Settings';
 import { Templates } from './pages/Templates';
 import { TemplateEditor } from './pages/TemplateEditor';
 import { MessageLogs } from './pages/MessageLogs';
+import { Automations } from './pages/Automations';
+import { AutomationNew } from './pages/AutomationNew';
+import { AutomationEdit } from './pages/AutomationEdit';
 
 function App() {
   return (
@@ -169,6 +172,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <MessageLogs />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/automations"
+            element={
+              <ProtectedRoute>
+                <Automations />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/automations/new"
+            element={
+              <ProtectedRoute>
+                <AutomationNew />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/app/automations/:id/edit"
+            element={
+              <ProtectedRoute>
+                <AutomationEdit />
               </ProtectedRoute>
             }
           />

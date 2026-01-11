@@ -25,6 +25,9 @@ import type {
   UpdateMessageTemplateRequest,
   MessageLog,
   MessageLogsQuery,
+  AutomationRule,
+  CreateAutomationRuleRequest,
+  UpdateAutomationRuleRequest,
 } from '@msm/shared';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -293,6 +296,35 @@ class ApiClient {
 
   async getMessageLog(id: string): Promise<MessageLog> {
     return this.request<MessageLog>(`/message-logs/${id}`);
+  }
+
+  // Automation endpoints
+  async getAutomations(): Promise<AutomationRule[]> {
+    return this.request<AutomationRule[]>('/automations');
+  }
+
+  async getAutomation(id: string): Promise<AutomationRule> {
+    return this.request<AutomationRule>(`/automations/${id}`);
+  }
+
+  async createAutomation(data: CreateAutomationRuleRequest): Promise<AutomationRule> {
+    return this.request<AutomationRule>('/automations', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateAutomation(id: string, data: UpdateAutomationRuleRequest): Promise<AutomationRule> {
+    return this.request<AutomationRule>(`/automations/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteAutomation(id: string): Promise<void> {
+    return this.request(`/automations/${id}`, {
+      method: 'DELETE',
+    });
   }
 }
 

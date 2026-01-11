@@ -17,6 +17,12 @@ export type MessageChannel = 'EMAIL' | 'SMS';
 
 export type MessageTemplateType = 'CONFIRMATION' | 'REMINDER' | 'REVIEW' | 'REBOOK';
 
+export type TriggerType = 
+  | 'BOOKING_CREATED' 
+  | 'HOURS_BEFORE_BOOKING' 
+  | 'JOB_COMPLETED' 
+  | 'DAYS_SINCE_LAST_BOOKING';
+
 export interface User {
   id: string;
   businessId: string;
@@ -263,4 +269,34 @@ export interface MessageLogsQuery {
   status?: MessageStatus;
   from?: string; // ISO date
   to?: string; // ISO date
+}
+// Automation rule types
+export interface AutomationRule {
+  id: string;
+  businessId: string;
+  name: string;
+  triggerType: TriggerType;
+  templateId: string;
+  enabled: boolean;
+  hoursOrDays: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+  // Expanded when included
+  template?: MessageTemplate;
+}
+
+export interface CreateAutomationRuleRequest {
+  name: string;
+  triggerType: TriggerType;
+  templateId: string;
+  enabled?: boolean;
+  hoursOrDays?: number; // Required for HOURS_BEFORE_BOOKING and DAYS_SINCE_LAST_BOOKING
+}
+
+export interface UpdateAutomationRuleRequest {
+  name?: string;
+  triggerType?: TriggerType;
+  templateId?: string;
+  enabled?: boolean;
+  hoursOrDays?: number | null;
 }

@@ -23,6 +23,13 @@ enum MessageTemplateType {
   REBOOK
 }
 
+enum TriggerType {
+  BOOKING_CREATED
+  HOURS_BEFORE_BOOKING
+  JOB_COMPLETED
+  DAYS_SINCE_LAST_BOOKING
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -45,6 +52,7 @@ model Business {
   addOns            AddOn[]
   bookings          Booking[]
   messageTemplates  MessageTemplate[]
+  automationRules   AutomationRule[]
 
   @@map("businesses")
 }
@@ -187,10 +195,35 @@ model MessageTemplate {
   updatedAt   DateTime              @updatedAt
 
   business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  automationRules AutomationRule[]
 
   @@unique([businessId, type, channel])
   @@index([businessId])
   @@map("message_templates")
+}
+
+// Automation rules for triggering messages automatically
+model AutomationRule {
+  id          String      @id @default(cuid())
+  businessId  String
+  name        String
+  triggerType TriggerType
+  templateId  String
+  enabled     Boolean     @default(true)
+  
+  // Configuration for timing-based triggers
+  hoursOrDays Int?        // For HOURS_BEFORE_BOOKING or DAYS_SINCE_LAST_BOOKING
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  template MessageTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([enabled])
+  @@index([triggerType])
+  @@map("automation_rules")
 }
 
 enum MessageStatus {

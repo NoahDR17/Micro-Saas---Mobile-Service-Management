@@ -30,6 +30,7 @@ export function Layout({ children }: LayoutProps) {
     { path: '/app/bookings', label: 'Bookings' },
     { path: '/app/clients', label: 'Clients' },
     { path: '/app/services', label: 'Services' },
+    { path: '/app/automations', label: 'Automations' },
     { path: '/app/settings', label: 'Settings' },
   ];
 
