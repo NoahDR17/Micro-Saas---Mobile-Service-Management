@@ -5,6 +5,8 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { Landing } from './pages/Landing';
+import { VerifyEmail } from './pages/VerifyEmail';
+import { PendingVerification } from './pages/PendingVerification';
 import { Setup } from './pages/Setup';
 import { Dashboard } from './pages/Dashboard';
 import { Clients } from './pages/Clients';
@@ -35,6 +37,8 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/pending-verification" element={<PendingVerification />} />
 
           {/* Setup route (protected but doesn't require setup completion) */}
           <Route

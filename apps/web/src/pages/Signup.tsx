@@ -26,7 +26,8 @@ export function Signup() {
 
     try {
       await register(businessName, name, email, password);
-      navigate('/app/setup');
+      // Redirect to verification page instead of setup
+      navigate('/verify-email');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to sign up');
     } finally {
