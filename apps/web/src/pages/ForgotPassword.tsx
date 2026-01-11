@@ -1,0 +1,114 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { apiClient } from '../api/client';
+
+export function ForgotPassword() {
+  const [email, setEmail] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      await apiClient.forgotPassword(email);
+      setSubmitted(true);
+      setEmail('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send reset link');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'linear-gradient(180deg, #e5e7eb 0%, #f3f4f6 100%)',
+      padding: '16px',
+      boxSizing: 'border-box',
+      overflow: 'auto',
+    }}>
+      <div style={{
+        backgroundColor: '#fff',
+        padding: '32px 24px',
+        borderRadius: '24px',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08)',  const [submitted, setSubmitted] = udth: '440px',
+        boxSizing: 'border-box',
+      }}>
+        <div style={{
+          width: '72px',
+          height: '72px',
+          margin: '0 auto 20px',
+          background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+          borderRadius: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyConte    } catch (
+          flexShrink: 0,
+        }}>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21.71 9.29L13.41 1C13.05 0.64 12.55 0.44 12.03 0.44C11.51 0.44 11.01 0.64 10.65 1L2.29 9.29C1.9 9.68 1.44 10.44 1.44 11V19C1.44 20.65       padding: '16px',
+      box2.44 20.65 22.44 19V11C22.44 10.44 21.98 9.68 21.71 9.29ZM14.5 18H9.5C9.09 18 8.75 17.66 8.75 17.25C8.75 16.84 9.09 16.5 9.5 16.5H14.5C14.91 16.5 15.25 16.84 15.25 17.25C15.25 17.66 14.91 18 14.5 18Z" fill="#3b82f6"/>
+          </svg>
+           boxSizing: 'border-box',
+      }}>
+        <div style={{
+          width: '7er',color: '#6b7280',margin: '0 0 8px',}}>Mobile Service Manager</h2>
+        <h1 style={{fontSize: '24px',fontWeight: '700',textAlign: 'center',color: '#0f172a',margin: '0 0 8px',}}>Reset your password</h1>
+        <p style={{fontSize: '14px',textAlign: 'center',color: '#6b7280',margin: '0 0 20px',}}>Enter your email and we'll send you a link to reset your password.</p>
+
+        {submitted && (
+          <div style={{backgroundColor: '#f0fdf4',color: '#166534',padding: '12px 16px',borderRadius: '12px',marginBottom: '16px',fontSize: '14px',textAlign: 'center',}}>
+            Check your email for a reset link. It expires in 24 hours.
+          </div>
+        )}
+
+        {error && (
+             </svg>
+           boxSizing: 'border-box',
+      }}>
+    ding: '12px 16px',borderRadius: '12px',marginBottom: '16px',fontSize: '14px',}}>
+            {error}
+          </div>
+        )}
+
+        {!submitted ? (
+          <form onSubmit={handleSubmit} style={{ marginBottom: '16px' }}>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{display: 'block',fontSize: '14px',fontWeight: '500',color: '#0f172a',marginBottom: '6px',}}>Email address</label>
+              <input
+                type="email"
+
+        {submitted && (
+          <div style={{backge={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                required
+                style={{width: '100%',padding: '10px 12px',border: '1px solid #e5e7eb',borderRadius: '12px',fontSize: '14px',boxSizing: 'border-box',backgroundColor: '#fafbfc',}}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || !email}
+              style={{width: '100%',padding: '10px 12px',background: loading || !email ? '#d1d5db' : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',color: '#fff',border: 'none',borderRadius: '12px',fontSize: '14px',fontWeight: '600',cursor: loading || !email ? 'not-allowed' : 'pointer',}}
+            >
+              {loading ? 'Sending...' : 'Send reset link'}
+            </button>
+          </form>
+        ) : (
+          <button onClick={() => {setSubmitted(false); setError(''); setEmail('');}} style={{width: '100%',padding: '10px 12px',background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',color: '#fff',border: 'none',borderRadius: '12px',fontSize: '14px',fontWeight: '600',cursor: 'pointer',marginBottom: '16px',}}>Send another link</button>
+        )}
+
+        <p style={{fontSize: '14px',textAlign: 'center',color: '#6b7280',margin: 0,}}>
+          Remember your password? <Link to="/login" style={{color: '#3b82f6',textDecoration: 'none',fontWeight: '6              style={{width: '100%  </p>
+      </div>
+    </div>
+  );
+}

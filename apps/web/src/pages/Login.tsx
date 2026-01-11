@@ -314,6 +314,23 @@ export function Login() {
           </button>
         </div>
 
+        {/* Forgot Password Link */}
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '12px',
+        }}>
+          <Link to="/forgot-password" style={{
+            color: '#6b7280',
+            textDecoration: 'none',
+            fontSize: '14px',
+            transition: 'color 0.2s',
+          }} 
+          onMouseEnter={(e) => e.currentTarget.style.color = '#3b82f6'}
+          onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'}>
+            Forgot password?
+          </Link>
+        </div>
+
         {/* Sign Up Link */}
         <p style={{
           textAlign: 'center',

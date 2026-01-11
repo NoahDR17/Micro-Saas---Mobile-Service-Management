@@ -27,6 +27,8 @@ import { MessageLogs } from './pages/MessageLogs';
 import { Automations } from './pages/Automations';
 import { AutomationNew } from './pages/AutomationNew';
 import { AutomationEdit } from './pages/AutomationEdit';
+import { ForgotPassword } from './pages/ForgotPassword';
+import { ResetPassword } from './pages/ResetPassword';
 
 function App() {
   return (
@@ -39,6 +41,8 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/pending-verification" element={<PendingVerification />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Setup route (protected but doesn't require setup completion) */}
           <Route

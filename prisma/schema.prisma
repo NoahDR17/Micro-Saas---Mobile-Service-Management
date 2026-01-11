@@ -67,6 +67,8 @@ model User {
   emailVerified           Boolean  @default(false)
   emailVerificationToken  String?
   emailVerificationSentAt DateTime?
+  passwordResetToken      String?
+  passwordResetSentAt     DateTime?
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
