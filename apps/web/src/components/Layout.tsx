@@ -1,6 +1,7 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { ConfirmDialog } from './ConfirmDialog';
 
 interface LayoutProps {
   children: ReactNode;
@@ -10,10 +11,18 @@ export function Layout({ children }: LayoutProps) {
   const { user, business, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+    setShowLogoutConfirm(false);
+    setLoggingOut(true);
+    try {
+      await logout();
+      navigate('/login');
+    } finally {
+      setLoggingOut(false);
+    }
   };
 
   const navItems = [
@@ -40,7 +49,7 @@ export function Layout({ children }: LayoutProps) {
           <p style={{ margin: 0, fontSize: '0.875rem', opacity: 0.9 }}>{user?.name}</p>
         </div>
         <button
-          onClick={handleLogout}
+          onClick={() => setShowLogoutConfirm(true)}
           style={{
             padding: '0.5rem 1rem',
             backgroundColor: 'white',
@@ -90,6 +99,17 @@ export function Layout({ children }: LayoutProps) {
           );
         })}
       </nav>
+
+      <ConfirmDialog
+        isOpen={showLogoutConfirm}
+        title="Log out"
+        message="Are you sure you want to log out?"
+        confirmText={loggingOut ? 'Logging out...' : 'Log out'}
+        cancelText="Stay logged in"
+        variant="warning"
+        onConfirm={handleLogout}
+        onCancel={() => setShowLogoutConfirm(false)}
+      />
     </div>
   );
 }
